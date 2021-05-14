@@ -1,0 +1,56 @@
+C'mon baby start()
+{
+    Beautiful friend a become your the end
+    Beautiful friend b become your the end
+    Beautiful friend c become your the end
+
+    Break on through (a == 0)
+    {
+        Break on through (b == 0)
+        {
+            Break on through (c == 0)
+                I tell you minus 1 the end
+            To the other side
+                I tell you 0 the end
+        }
+        To the other side
+            LinearEq(b and c) the end
+    }
+    To the other side
+        SquareEq(a and b and c) the end
+
+    Blue bus is calling 0 the end
+}
+
+C'mon baby LinearEq(b and c)
+{
+    I tell you 1 the end
+    I tell you (minus c) divide b the end
+    
+    Blue bus is calling 0 the end
+}
+
+C'mon baby SquareEq(a and b and c)
+{
+    Beautiful friend d become b times b minus 4 times a times c the end
+
+    Break on through (d less 0)
+    {
+        I tell you 0 the end
+        
+        Blue bus is calling 0 the end
+    }
+    Break on through (d == 0)
+    {
+        I tell you 1 the end
+        I tell you minus b divide (2 times a) the end
+        
+        Blue bus is calling 0 the end
+    }
+
+    I tell you 2 the end
+    I tell you ((minus b plus  sqrt(d)) divide (2 times a)) the end
+    I tell you ((minus b minus sqrt(d)) divide (2 times a)) the end
+
+    Blue bus is calling 0 the end
+}

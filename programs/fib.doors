@@ -1,0 +1,30 @@
+C'mon baby fib(b)
+{
+    Break on through(b <= 2)
+        Blue bus is calling 1 the end
+    
+    Blue bus is calling fib(b minus 1) plus fib(b minus 2) the end
+}
+
+C'mon baby start()
+{
+    Beautiful friend a become 0 the end
+    a become your the end
+
+    Break on through(a <= 0)
+    {
+        I tell you minus 1 the end
+        Blue bus is calling 1 the end
+    }
+
+    Beautiful friend index become 1 the end
+    
+    When you're (index <= a)
+    {
+        I tell you fib(index) the end
+        index add 1 the end
+    }
+
+    Blue bus is calling 0 the end
+}
+

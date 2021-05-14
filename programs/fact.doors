@@ -1,0 +1,28 @@
+C'mon baby fact(a)
+{
+    Break on through(a <= 1)
+        Blue bus is calling 1 the end    
+
+    Blue bus is calling (a times fact(a minus 1)) the end
+}
+
+C'mon baby start()
+{
+    Beautiful friend var become your the end
+
+    Break on through(var <= 0)
+    {
+        I tell you (minus 1) the end
+        Blue bus is calling 1 the end
+    }
+
+    Beautiful friend index become 1 the end
+
+    When you're (index <= var)
+    {
+        I tell you fact(index) the end
+        index add 1 the end
+    }
+
+    Blue bus is calling 0 the end
+}
