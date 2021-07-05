@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "node.h"
+#include <stdlib.h>
 
 //--------------------------------------------------------------------
 
@@ -32,11 +33,11 @@ NodeVal MakeNodeStrval(const char* strval)
 
 //--------------------------------------------------------------------
 
-Node* NodeConstruct(NodeType type, NodeVal value, int line, int column)
+Node* NodeConstruct(Node src_node)
 {
     Node *new_node = (Node *)calloc(1, sizeof(Node));
     
-    *new_node = NodeMake(type, value, line, column);
+    *new_node = NodeMake(src_node.type, src_node.value, src_node.line, src_node.column);
     
     return new_node;
 }
@@ -61,7 +62,7 @@ void NodeRecDestruct(Node* node)
         NodeRecDestruct(node->rnode);
     
     if (node->type == IDENT || node->type == FUN_CALL || node->type == FUN_DECL || node->type == VAR_DECL)
-        free(node->value.strval);
+        free((void*)node->value.strval);
     
     free(node);
 }

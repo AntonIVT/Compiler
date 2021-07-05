@@ -57,7 +57,7 @@ typedef struct Node
 //--------------------------------------------------------------------
 
 /* Allocate memory */
-Node* NodeConstruct(NodeType type, NodeVal value, int line, int column);
+Node* NodeConstruct(Node src_node);
 
 Node NodeMake(NodeType type, NodeVal value, int line, int column);
 

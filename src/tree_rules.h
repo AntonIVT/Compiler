@@ -57,6 +57,7 @@ typedef enum KeyWord
     LOOP_KEY,     // Loop with condition
     RET_KEY,      // Returning value in function
     INPUT_KEY,    // Input number
+    PRINT_KEY     // Output number
 } KeyWord;
 
 typedef struct LexicalRule
@@ -101,6 +102,7 @@ const LexicalRule keywords_list[] =
     {LOOP_KEY,      WHILE_ST, 1, "When you're"         },
     {RET_KEY,       RET_ST,   1, "Blue bus is calling" },
     {INPUT_KEY,     INPUT,    1, "Your"                },
+    {PRINT_KEY,     PRINT,    1, "I tell you"          },
 };
 
 /*struct Dumping_rule 

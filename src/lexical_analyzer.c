@@ -1,9 +1,20 @@
 #include <assert.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
 #include "lexical_analyzer.h"
 #include "tree_rules.h"
+#include "node.h"
 
-void LexicalAnalyzerSkip(LexicalAnalyzer* lexer)
+static void LexicSkip(LexicalAnalyzer* lexer);
+
+static char* LexicGetIdent(LexicalAnalyzer* lexer);
+
+static double LexicGetNum(LexicalAnalyzer* lexer);
+
+static void LexicSkip(LexicalAnalyzer* lexer)
 {
     while (isspace(*(lexer->ptr)))
     {
@@ -18,7 +29,7 @@ void LexicalAnalyzerSkip(LexicalAnalyzer* lexer)
     }
 }
     
-void LexicalAnalyzerConstruct(LexicalAnalyzer* lexer, char *expression)
+void LexicConstruct(LexicalAnalyzer* lexer, char *expression)
 {
     assert(lexer != NULL);
     assert(expression != NULL);
@@ -31,7 +42,7 @@ void LexicalAnalyzerConstruct(LexicalAnalyzer* lexer, char *expression)
     VectorConstruct(lexer->lexemes, sizeof(Node));
 }
 
-void LexicalAnalyzerDestruct(LexicalAnalyzer* lexer)
+void LexicDestruct(LexicalAnalyzer* lexer)
 {        
     assert(lexer != NULL);
 
@@ -39,7 +50,7 @@ void LexicalAnalyzerDestruct(LexicalAnalyzer* lexer)
     free(lexer->lexemes);
 }
 
-void LexicalAnalyzerIdentDestruct(LexicalAnalyzer* lexer)
+void LexicIdentDestruct(LexicalAnalyzer* lexer)
 {
     assert(lexer != NULL);
 
@@ -50,11 +61,11 @@ void LexicalAnalyzerIdentDestruct(LexicalAnalyzer* lexer)
         Node* curr_el = (Node*)VectorGet(lexer->lexemes, i);
         
         if (curr_el->type == IDENT)
-            free(curr_el->value.strval);
+            free((void*)curr_el->value.strval);
     }    
 }
 
-char* LexicalAnalyzerGetIdent(LexicalAnalyzer* lexer)
+static char* LexicGetIdent(LexicalAnalyzer* lexer)
 {
     assert(lexer != NULL);
 
@@ -76,7 +87,7 @@ char* LexicalAnalyzerGetIdent(LexicalAnalyzer* lexer)
     return ident;
 }
 
-double LexicalAnalyzerGetNum(LexicalAnalyzer* lexer)
+static double LexicGetNum(LexicalAnalyzer* lexer)
 {
     assert(lexer != NULL);
 
@@ -90,7 +101,7 @@ double LexicalAnalyzerGetNum(LexicalAnalyzer* lexer)
     return num;
 }
 
-char LexicalAnalyzerAnalyze(LexicalAnalyzer* lexer)
+char LexicAnalyze(LexicalAnalyzer* lexer)
 {
     assert(lexer != NULL);
 
@@ -98,11 +109,11 @@ char LexicalAnalyzerAnalyze(LexicalAnalyzer* lexer)
 
     while(*(lexer->ptr) != '\0')
     {
-        LexicalAnalyzerSkip(lexer);
+        LexicSkip(lexer);
         
         if (isdigit(*lexer->ptr))
         {   
-            Node new_node = NodeMake(NUM, MakeNodeDval(LexicalAnalyzerGetNum(lexer)), lexer->line, lexer->column);
+            Node new_node = NodeMake(NUM, MakeNodeDval(LexicGetNum(lexer)), lexer->line, lexer->column);
             VectorPushBack(lexer->lexemes,  &new_node);   
             continue;
         }
@@ -134,7 +145,7 @@ char LexicalAnalyzerAnalyze(LexicalAnalyzer* lexer)
         
         if (*lexer->ptr == '_' || isalpha(*lexer->ptr))
         {
-            Node new_node = NodeMake(IDENT, MakeNodeStrval(LexicalAnalyzerGetIdent(lexer)), lexer->line, lexer->column);
+            Node new_node = NodeMake(IDENT, MakeNodeStrval(LexicGetIdent(lexer)), lexer->line, lexer->column);
             VectorPushBack(lexer->lexemes, &new_node);
             continue;
         }
@@ -143,7 +154,7 @@ char LexicalAnalyzerAnalyze(LexicalAnalyzer* lexer)
         {
             printf("Wrong lexical:\n <%20s>\n [%i:%i]\n", lexer->ptr, lexer->line, lexer->column);
             is_wrong = 1;
-            LexicalAnalyzerIdentDestruct(lexer);
+            LexicIdentDestruct(lexer);
 
             break;
         }

@@ -19,8 +19,9 @@ struct FunctionCompiler
     CodeBuffer*    code;
     int32_t        var_offset;
     Node*          func_decl;
+    bool           optimization;
     
-    void construct( Node* func_decl, CodeBuffer* code, List<Label>* func_calls);
+    void construct(Node* func_decl, CodeBuffer* code, List<Label>* func_calls);
     
     void destruct();
     
@@ -59,6 +60,7 @@ struct ProgramCompiler
     List<Label> func_calls;
     CodeBuffer  code;
     Tree*       tree;
+    bool        optimization;
     
     void construct(Tree *tree);
     
@@ -66,7 +68,7 @@ struct ProgramCompiler
     
     void print_calls();
 
-    void compile_program(const char* out_file_name);
+    void compile_program(const char* out_file_name, bool optimization);
     
     void compile_func(Node* node);
 };
@@ -126,14 +128,14 @@ void ProgramCompiler::print_calls()
 
 //--------------------------------------------------------------------
 
-void ProgramCompiler::compile_program(const char* out_file_name)
+void ProgramCompiler::compile_program(const char* out_file_name, bool optimization)
 {
     assert(out_file_name != nullptr);
 
-    PrintCall(&code,  &func_calls, MAIN_FUNC);
-    PrintMovRI(&code, RAX, 60);
-    PrintMovRI(&code, RDI, 0);
-    PrintSyscall(&code); 
+    EmitCall(&code,  &func_calls, MAIN_FUNC);
+    EmitMovRR(&code, RDI, RAX);
+    EmitMovRI(&code, RAX, 60);
+    EmitSyscall(&code); 
 
     if (tree->root != nullptr)
         compile_func(tree->root);
@@ -150,7 +152,7 @@ void ProgramCompiler::compile_program(const char* out_file_name)
     FILE* file = fopen(out_file_name, "wb");
     assert(file != nullptr);
 
-    PrintElfInfo(file, program_size);
+    WriteElfInfo(file, program_size);
 
     print_calls();
 
@@ -243,8 +245,8 @@ void FunctionCompiler::compile_func()
 {
     assert(func_decl != nullptr && func_decl->type == FUN_DECL);
     
-    PrintPush(code, RBP);
-    PrintMovRR(code, RBP, RSP);
+    EmitPush(code, RBP);
+    EmitMovRR(code, RBP, RSP);
 
     /* ..., arg2, arg1, ret_adr, rbp */
     if (func_decl->lnode != nullptr)
@@ -252,11 +254,11 @@ void FunctionCompiler::compile_func()
 
     compile_exp_stmt_comp(func_decl->rnode);
 
-    PrintAddRI(code, RSP, -var_offset);
-    PrintPop(code, RBP);
+    EmitAddRI(code, RSP, -var_offset);
+    EmitPop(code, RBP);
 
-    PrintMovRI(code, RAX, 0);
-    PrintRet(code);
+    EmitMovRI(code, RAX, 0);
+    EmitRet(code);
 }
 
 //--------------------------------------------------------------------
@@ -306,8 +308,8 @@ void FunctionCompiler::compile_exp_stmt_comp(Node *node)
             if (node->lnode->lnode != nullptr)
                 arg_count = compile_call_args(node->lnode->lnode);
             
-            PrintCall(code, func_calls, node->lnode->value.strval);
-            PrintAddRI(code, RSP, arg_count * 8);
+            EmitCall(code, func_calls, node->lnode->value.strval);
+            EmitAddRI(code, RSP, arg_count * 8);
 
             break;
         }
@@ -328,15 +330,15 @@ void FunctionCompiler::compile_cond(Node *node)
 
     compile_expression(node->lnode);
 
-    PrintPop(code, RAX);
-    PrintMovRI(code, RBX, 0);
-    PrintCmpRR(code, RAX, RBX);
-    PrintCondJump(code, JE);
+    EmitPop(code, RAX);
+    EmitMovRI(code, RBX, 0);
+    EmitCmpRR(code, RAX, RBX);
+    EmitCondJump(code, JE);
     int32_t cond_false = code->offset;
     
     compile_exp_stmt_comp(node->rnode->lnode);
 
-    PrintJmp(code);
+    EmitJmp(code);
     int32_t cond_end = code->offset;
 
     code->addRel4Byte(cond_false, code->offset);
@@ -357,15 +359,15 @@ void FunctionCompiler::compile_while(Node *node)
     
     compile_expression(node->lnode);
     
-    PrintPop(code, RAX);
-    PrintMovRI(code, RBX, 0);
-    PrintCmpRR(code, RAX, RBX);
-    PrintCondJump(code, JE);
+    EmitPop(code, RAX);
+    EmitMovRI(code, RBX, 0);
+    EmitCmpRR(code, RAX, RBX);
+    EmitCondJump(code, JE);
     int32_t while_end = code->offset;
     
     compile_exp_stmt_comp(node->rnode);
 
-    PrintJmp(code);
+    EmitJmp(code);
     code->addRel4Byte(code->offset, while_begin);
 
     code->addRel4Byte(while_end, code->offset);
@@ -379,10 +381,10 @@ void FunctionCompiler::compile_ret(Node *node)
 
     compile_expression(node->lnode);
     
-    PrintPop(code, RAX);
-    PrintAddRI(code, RSP, -var_offset);
-    PrintPop(code, RBP);
-    PrintRet(code);
+    EmitPop(code, RAX);
+    EmitAddRI(code, RSP, -var_offset);
+    EmitPop(code, RBP);
+    EmitRet(code);
 }
 
 //--------------------------------------------------------------------
@@ -393,8 +395,8 @@ void FunctionCompiler::compile_print(Node *node)
 
     compile_expression(node->lnode);
     
-    PrintCall(code, func_calls, "output");
-    PrintAddRI(code, RSP, 8);
+    EmitCall(code, func_calls, "output");
+    EmitAddRI(code, RSP, 8);
 }
 
 //--------------------------------------------------------------------
@@ -409,8 +411,8 @@ void FunctionCompiler::compile_var_decl(Node *node)
         compile_expression(node->lnode);
     else
     {
-        PrintMovRI(code, RAX, rand());
-        PrintPush(code, RAX);
+        EmitMovRI(code, RAX, rand());
+        EmitPush(code, RAX);
     }
 
     var_offset -= 8;
@@ -427,41 +429,41 @@ void FunctionCompiler::compile_assgn(Node *node)
     compile_expression(node->rnode);
 
     if (node->value.ival != ASSGN)
-        PrintMovRM(code, RAX, RBP, var_offset);
+        EmitMovRM(code, RAX, RBP, offset_tmp);
 
     switch (node->value.ival)
     {
     case ASSGN:
-        PrintPop(code, RAX);
-        PrintMovMR(code, RBP, RAX, var_offset);
+        EmitPop(code, RAX);
+        EmitMovMR(code, RBP, RAX, offset_tmp);
 
         break;
     case ASSGN_A:
-        PrintPop(code, RBX);
-        PrintAddRR(code, RAX, RBX);
+        EmitPop(code, RBX);
+        EmitAddRR(code, RAX, RBX);
 
         break;
     case ASSGN_S:
-        PrintPop(code, RBX);
-        PrintSubRR(code, RAX, RBX);
+        EmitPop(code, RBX);
+        EmitSubRR(code, RAX, RBX);
 
         break;
     case ASSGN_M:
-        PrintPop(code, RBX);
-        PrintImulRR(code, RAX, RBX);
+        EmitPop(code, RBX);
+        EmitImulRR(code, RAX, RBX);
 
-        PrintMovRI(code, RBX, 10000);
-        PrintCqo(code);
-        PrintIdivR(code, RBX);
+        EmitMovRI(code, RBX, 10000);
+        EmitCqo(code);
+        EmitIdivR(code, RBX);
 
         break;
     case ASSGN_D:
-        PrintMovRI(code,  RCX, 10000);
-        PrintImulRR(code, RAX, RCX);
+        EmitMovRI(code,  RCX, 10000);
+        EmitImulRR(code, RAX, RCX);
 
-        PrintPop(code, RBX);
-        PrintCqo(code);
-        PrintIdivR(code, RBX);
+        EmitPop(code, RBX);
+        EmitCqo(code);
+        EmitIdivR(code, RBX);
 
         break;
     default:
@@ -469,17 +471,17 @@ void FunctionCompiler::compile_assgn(Node *node)
     }
 
     if (node->value.ival != ASSGN)
-        PrintMovMR(code, RBP, RAX, var_offset);
+        EmitMovMR(code, RBP, RAX, offset_tmp);
 }
 
 //--------------------------------------------------------------------
 
-#define PRINT_CMP(cond) PrintPop(code, RBX);        \
-                        PrintPop(code, RAX);        \
-                        PrintCmpRR(code, RAX, RBX); \
-                        PrintSet(code, cond, RAX);  \
-                        PrintMovzx(code, RAX, RAX); \
-                        PrintPush(code, RAX);
+#define PRINT_CMP(cond) EmitPop(code, RBX);        \
+                        EmitPop(code, RAX);        \
+                        EmitCmpRR(code, RAX, RBX); \
+                        EmitSet(code, cond, RAX);  \
+                        EmitMovzx(code, RAX, RAX); \
+                        EmitPush(code, RAX);
 
 void FunctionCompiler::compile_expression(Node *node)
 {
@@ -489,14 +491,14 @@ void FunctionCompiler::compile_expression(Node *node)
     {
     case NUM:
         
-        PrintMovRI(code, RAX, (int64_t)(node->value.dval * 10000));
-        PrintPush(code, RAX);
+        EmitMovRI(code, RAX, (int64_t)(node->value.dval * 10000));
+        EmitPush(code, RAX);
         
         break;
     case IDENT:
         
-        PrintMovRM(code, RAX, RBP, get_offset(node->value.strval));
-        PrintPush(code, RAX);
+        EmitMovRM(code, RAX, RBP, get_offset(node->value.strval));
+        EmitPush(code, RAX);
         
         break;
     case BIN_OPER:
@@ -507,41 +509,41 @@ void FunctionCompiler::compile_expression(Node *node)
         switch (node->value.ival)
         {
         case ADD:
-            PrintPop(code, RBX);
-            PrintPop(code, RAX);
-            PrintAddRR(code, RAX, RBX);
-            PrintPush(code, RAX);
+            EmitPop(code, RBX);
+            EmitPop(code, RAX);
+            EmitAddRR(code, RAX, RBX);
+            EmitPush(code, RAX);
             
             break;
         case SUB:
-            PrintPop(code, RBX);
-            PrintPop(code, RAX);
-            PrintSubRR(code, RAX, RBX);
-            PrintPush(code, RAX);
+            EmitPop(code, RBX);
+            EmitPop(code, RAX);
+            EmitSubRR(code, RAX, RBX);
+            EmitPush(code, RAX);
 
             break;
         case MUL:
-            PrintPop(code, RBX);
-            PrintPop(code, RAX);
-            PrintImulRR(code, RAX, RBX);
+            EmitPop(code, RBX);
+            EmitPop(code, RAX);
+            EmitImulRR(code, RAX, RBX);
             
-            PrintMovRI(code, RBX, 10000);
-            PrintCqo(code);
-            PrintIdivR(code, RBX);
+            EmitMovRI(code, RBX, 10000);
+            EmitCqo(code);
+            EmitIdivR(code, RBX);
             
-            PrintPush(code, RAX);            
+            EmitPush(code, RAX);            
             
             break;
         case DIV:
-            PrintPop(code,    RBX);
-            PrintPop(code,    RAX);
-            PrintMovRI(code,  RCX, 10000);
-            PrintImulRR(code, RAX, RCX);
+            EmitPop(code,    RBX);
+            EmitPop(code,    RAX);
+            EmitMovRI(code,  RCX, 10000);
+            EmitImulRR(code, RAX, RCX);
 
-            PrintCqo(code);
-            PrintIdivR(code, RBX);
+            EmitCqo(code);
+            EmitIdivR(code, RBX);
             
-            PrintPush(code, RAX);
+            EmitPush(code, RAX);
 
             break;
         case LESS:
@@ -563,17 +565,17 @@ void FunctionCompiler::compile_expression(Node *node)
             PRINT_CMP(SETNE)
             break;
         case OR:
-            PrintPop(code, RBX);
-            PrintPop(code, RAX);
-            PrintOr(code, RAX, RBX);
-            PrintPush(code, RAX);
+            EmitPop(code, RBX);
+            EmitPop(code, RAX);
+            EmitOr(code, RAX, RBX);
+            EmitPush(code, RAX);
 
             break;
         case AND:
-            PrintPop(code, RBX);
-            PrintPop(code, RAX);
-            PrintAnd(code, RAX, RBX);
-            PrintPush(code, RAX);
+            EmitPop(code, RBX);
+            EmitPop(code, RAX);
+            EmitAnd(code, RAX, RBX);
+            EmitPush(code, RAX);
 
             break;
         default:
@@ -583,8 +585,8 @@ void FunctionCompiler::compile_expression(Node *node)
         break;
     case INPUT:
 
-        PrintCall(code, func_calls, "input");
-        PrintPush(code, RAX);
+        EmitCall(code, func_calls, "input");
+        EmitPush(code, RAX);
 
         break;
     case FUN_CALL:
@@ -593,9 +595,9 @@ void FunctionCompiler::compile_expression(Node *node)
         if (node->lnode != nullptr)
             arg_count = compile_call_args(node->lnode);
         
-        PrintCall(code, func_calls, node->value.strval);
-        PrintAddRI(code, RSP, arg_count * 8);
-        PrintPush(code, RAX);
+        EmitCall(code, func_calls, node->value.strval);
+        EmitAddRI(code, RSP, arg_count * 8);
+        EmitPush(code, RAX);
 
         break;
     }
