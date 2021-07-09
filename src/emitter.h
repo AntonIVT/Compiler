@@ -1,15 +1,10 @@
 #pragma once
 
-#include <cstdio>
-#include <cstdlib>
-#include <cassert>
-#include "struct.hpp"
-#include "code_buffer.hpp"
-#include "list.hpp"
+#include "code_buffer.h"
 
 //--------------------------------------------------------------------
 
-enum Registers
+typedef enum Registers
 {
     RAX = 0b000,
     RCX = 0b001,
@@ -19,11 +14,11 @@ enum Registers
     RBP = 0b101,
     RSI = 0b110,
     RDI = 0b111,
-};
+} Registers;
 
 //--------------------------------------------------------------------
 
-enum Jumps
+typedef enum Jumps
 {
     JE  = 0x84,
     JNE = 0x85,
@@ -31,11 +26,11 @@ enum Jumps
     JG  = 0x8F,
     JLE = 0x8E,
     JGE = 0x8D,
-};
+} Jumps;
 
 //--------------------------------------------------------------------
 
-enum Sets
+typedef enum Sets
 {
     SETE  = 0x94,
     SETNE = 0x95,
@@ -43,7 +38,7 @@ enum Sets
     SETG  = 0x9F,
     SETLE = 0x9E,
     SETGE = 0x9D
-};
+} Sets;
 
 //--------------------------------------------------------------------
 
@@ -97,160 +92,67 @@ const BYTE rsp_mem = 0x24;
 //--------------------------------------------------------------------
 
 /* Get two registers argument */
-BYTE GetRR(BYTE ext, BYTE reg1, BYTE reg2)
-{  
-    return ((ext << 6) | (reg1 << 3) | reg2); 
-}
+BYTE GetRR(BYTE ext, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 
 /* mov reg1, reg2 */
-void EmitMovRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(mov_rr);
-    buffer->printByte(GetRR(ext_rr, reg2, reg1));
-}
+void EmitMovRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 
 /* mov reg1, [reg2 + offset] */
-void EmitMovRM(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(mov_rm);
-    buffer->printByte(GetRR(ext_rm, reg1, reg2));
-
-    if (reg2 == RSP)
-        buffer->printByte(rsp_mem);
-    
-    buffer->print4Byte(offset);
-}
+void EmitMovRM(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset);
 
 //--------------------------------------------------------------------
 
 /* mov [reg1 + offset], reg2 */
-void EmitMovMR(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(mov_mr);
-    buffer->printByte(GetRR(ext_rm, reg2, reg1));
-
-    if (reg1 == RSP)
-        buffer->printByte(rsp_mem);
-    
-    buffer->print4Byte(offset);
-}
+void EmitMovMR(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset);
 
 //--------------------------------------------------------------------
 
 /* mov reg, imm */
-void EmitMovRI(CodeBuffer* buffer, BYTE registr, int64_t imm)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(mov_ri + registr);
-    buffer->print8Byte(imm);
-}
+void EmitMovRI(CodeBuffer* buffer, BYTE registr, int64_t imm);
 
 //--------------------------------------------------------------------
 
 /* push reg */
-void EmitPush(CodeBuffer* buffer, BYTE registr)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(push_r + registr);
-}
+void EmitPush(CodeBuffer* buffer, BYTE registr);
 
 //--------------------------------------------------------------------
 
 /* pop reg */
-void EmitPop(CodeBuffer* buffer, BYTE registr)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(pop_r + registr);    
-}
+void EmitPop(CodeBuffer* buffer, BYTE registr);
 
 //--------------------------------------------------------------------
 
 /* ret */
-void EmitRet(CodeBuffer* buffer)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(ret);
-}
+void EmitRet(CodeBuffer* buffer);
 
 //--------------------------------------------------------------------
 
 /* add reg, imm */
-void EmitAddRI(CodeBuffer* buffer, BYTE registr, int imm)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(add_ri);
-    buffer->printByte(add_ri_arg + registr);
-    buffer->print4Byte(imm);
-}
+void EmitAddRI(CodeBuffer* buffer, BYTE registr, int imm);
 
 //--------------------------------------------------------------------
 
 /* cmp reg1, reg2 */
-void EmitCmpRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(cmp_rr);
-    buffer->printByte(GetRR(ext_rr, reg2, reg1));
-}
+void EmitCmpRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 
 /* add reg1, reg2 */
-void EmitAddRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(add_rr);
-    buffer->printByte(GetRR(ext_rr, reg2, reg1));
-}
+void EmitAddRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 
 /* sub reg1, reg2 */
-void EmitSubRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(sub_rr);
-    buffer->printByte(GetRR(ext_rr, reg2, reg1));
-}
+void EmitSubRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 
 /* imul reg1, reg2 */
-void EmitImulRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
-{
-    assert(buffer != nullptr);
-
-    buffer->printByte(def_64);
-    buffer->printByte(double_byte);
-    buffer->printByte(imul_rr);
-    buffer->printByte(GetRR(ext_rr, reg1, reg2));
-}
+void EmitImulRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2);
 
 //--------------------------------------------------------------------
 

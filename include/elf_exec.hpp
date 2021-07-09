@@ -50,7 +50,7 @@ struct ProgramHeader
 
 //--------------------------------------------------------------------
 
-void PrintElfInfo(FILE* file, int32_t program_size)
+void WriteElfInfo(FILE* file, int32_t program_size)
 {
     assert(file != nullptr);
 
