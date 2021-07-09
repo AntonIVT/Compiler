@@ -104,7 +104,7 @@ BYTE GetRR(BYTE ext, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* mov reg1, reg2 */
-void PrintMovRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitMovRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -116,7 +116,7 @@ void PrintMovRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* mov reg1, [reg2 + offset] */
-void PrintMovRM(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
+void EmitMovRM(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
 {
     assert(buffer != nullptr);
 
@@ -133,7 +133,7 @@ void PrintMovRM(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
 //--------------------------------------------------------------------
 
 /* mov [reg1 + offset], reg2 */
-void PrintMovMR(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
+void EmitMovMR(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
 {
     assert(buffer != nullptr);
 
@@ -150,7 +150,7 @@ void PrintMovMR(CodeBuffer* buffer, BYTE reg1, BYTE reg2, int32_t offset)
 //--------------------------------------------------------------------
 
 /* mov reg, imm */
-void PrintMovRI(CodeBuffer* buffer, BYTE registr, int64_t imm)
+void EmitMovRI(CodeBuffer* buffer, BYTE registr, int64_t imm)
 {
     assert(buffer != nullptr);
 
@@ -162,7 +162,7 @@ void PrintMovRI(CodeBuffer* buffer, BYTE registr, int64_t imm)
 //--------------------------------------------------------------------
 
 /* push reg */
-void PrintPush(CodeBuffer* buffer, BYTE registr)
+void EmitPush(CodeBuffer* buffer, BYTE registr)
 {
     assert(buffer != nullptr);
 
@@ -172,7 +172,7 @@ void PrintPush(CodeBuffer* buffer, BYTE registr)
 //--------------------------------------------------------------------
 
 /* pop reg */
-void PrintPop(CodeBuffer* buffer, BYTE registr)
+void EmitPop(CodeBuffer* buffer, BYTE registr)
 {
     assert(buffer != nullptr);
 
@@ -182,7 +182,7 @@ void PrintPop(CodeBuffer* buffer, BYTE registr)
 //--------------------------------------------------------------------
 
 /* ret */
-void PrintRet(CodeBuffer* buffer)
+void EmitRet(CodeBuffer* buffer)
 {
     assert(buffer != nullptr);
 
@@ -192,7 +192,7 @@ void PrintRet(CodeBuffer* buffer)
 //--------------------------------------------------------------------
 
 /* add reg, imm */
-void PrintAddRI(CodeBuffer* buffer, BYTE registr, int imm)
+void EmitAddRI(CodeBuffer* buffer, BYTE registr, int imm)
 {
     assert(buffer != nullptr);
 
@@ -205,7 +205,7 @@ void PrintAddRI(CodeBuffer* buffer, BYTE registr, int imm)
 //--------------------------------------------------------------------
 
 /* cmp reg1, reg2 */
-void PrintCmpRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitCmpRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -217,7 +217,7 @@ void PrintCmpRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* add reg1, reg2 */
-void PrintAddRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitAddRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -229,7 +229,7 @@ void PrintAddRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* sub reg1, reg2 */
-void PrintSubRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitSubRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -241,7 +241,7 @@ void PrintSubRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* imul reg1, reg2 */
-void PrintImulRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitImulRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -254,7 +254,7 @@ void PrintImulRR(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* idiv reg */
-void PrintIdivR(CodeBuffer* buffer, BYTE reg)
+void EmitIdivR(CodeBuffer* buffer, BYTE reg)
 {
     assert(buffer != nullptr);
 
@@ -266,7 +266,7 @@ void PrintIdivR(CodeBuffer* buffer, BYTE reg)
 //--------------------------------------------------------------------
 
 /* syscall */
-void PrintSyscall(CodeBuffer* buffer)
+void EmitSyscall(CodeBuffer* buffer)
 {
     assert(buffer != nullptr);
 
@@ -277,7 +277,7 @@ void PrintSyscall(CodeBuffer* buffer)
 //--------------------------------------------------------------------
 
 /* jmp *plug* */
-void PrintJmp(CodeBuffer* buffer)
+void EmitJmp(CodeBuffer* buffer)
 {
     assert(buffer != nullptr);
 
@@ -288,7 +288,7 @@ void PrintJmp(CodeBuffer* buffer)
 //--------------------------------------------------------------------
 
 /* call label */
-void PrintCall(CodeBuffer* buffer, List<Label>* calls, const char* label)
+void EmitCall(CodeBuffer* buffer, List<Label>* calls, const char* label)
 {
     assert( buffer != nullptr &&
             calls  != nullptr &&
@@ -303,7 +303,7 @@ void PrintCall(CodeBuffer* buffer, List<Label>* calls, const char* label)
 //--------------------------------------------------------------------
 
 /* j(cond) plug */
-void PrintCondJump(CodeBuffer* buffer, BYTE cond)
+void EmitCondJump(CodeBuffer* buffer, BYTE cond)
 {
     assert(buffer != nullptr);
     
@@ -315,7 +315,7 @@ void PrintCondJump(CodeBuffer* buffer, BYTE cond)
 //--------------------------------------------------------------------
 
 /* set(cond) reg */
-void PrintSet(CodeBuffer* buffer, BYTE cond, BYTE reg)
+void EmitSet(CodeBuffer* buffer, BYTE cond, BYTE reg)
 {
     assert(buffer != nullptr);
 
@@ -327,7 +327,7 @@ void PrintSet(CodeBuffer* buffer, BYTE cond, BYTE reg)
 //--------------------------------------------------------------------
 
 /* movzx reg1, reg2 */
-void PrintMovzx(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitMovzx(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -340,7 +340,7 @@ void PrintMovzx(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* and reg1, reg2 */
-void PrintAnd(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitAnd(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -352,7 +352,7 @@ void PrintAnd(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 //--------------------------------------------------------------------
 
 /* or reg1, reg2 */
-void PrintOr(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
+void EmitOr(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
 {
     assert(buffer != nullptr);
 
@@ -361,7 +361,7 @@ void PrintOr(CodeBuffer* buffer, BYTE reg1, BYTE reg2)
     buffer->printByte(GetRR(ext_rr, reg2, reg1));
 }
 
-void PrintCqo(CodeBuffer* buffer)
+void EmitCqo(CodeBuffer* buffer)
 {
     assert(buffer != nullptr);
 

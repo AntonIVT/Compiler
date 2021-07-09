@@ -152,7 +152,7 @@ void ProgramCompiler::compile_program(const char* out_file_name, bool optimizati
     FILE* file = fopen(out_file_name, "wb");
     assert(file != nullptr);
 
-    WriteElfInfo(file, program_size);
+    PrintElfInfo(file, program_size);
 
     print_calls();
 

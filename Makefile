@@ -9,7 +9,6 @@ lib:
 
 compiler: lib
 	g++ -o udc main.cpp
-	mv udc bin
 
 debug:
 	g++ $(CDEBUGFLAGS) -o udc_debug main.cpp

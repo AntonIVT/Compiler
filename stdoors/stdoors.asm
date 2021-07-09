@@ -8,6 +8,8 @@ _start:
 
 ; Before syscall push rcx and r11
 
+; Add '<' and '>' to labels
+
 db "START_OF_THE_STDLIB"
 
 db "INPUT_STDLIB"

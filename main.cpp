@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     compiler.construct(&tree);
     if (output_file == nullptr)
         output_file = "program.out";
-    compiler.compile_program(output_file);
+    compiler.compile_program(output_file, false);
     compiler.destruct();
     
     tree.destruct();
